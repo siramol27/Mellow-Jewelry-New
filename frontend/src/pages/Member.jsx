@@ -71,7 +71,7 @@ const Member = () => {
         <div className="absolute bottom-[-400px] left-[200px] w-[650px] h-[650px] bg-purple-900/25 blur-[250px] rounded-full"></div>
       </div>
 
-      {/*   ปุ่มกลับไปหน้า Shop */}
+      {/*   ปุ่มกลับไปหน้า Shop. */}
       <button
         onClick={() => navigate("/shop")}
         style={{
