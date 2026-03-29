@@ -16,6 +16,10 @@ export const AppContextProvider = ({ children }) => {
   const hasFetched = useRef(false);
 
   axios.defaults.withCredentials = true;
+  const savedToken = localStorage.getItem('authToken');
+  if (savedToken) {
+    axios.defaults.headers.common.Authorization = `Bearer ${savedToken}`;
+  }
 
   /**   ดึงข้อมูลผู้ใช้ปัจจุบัน */
   const getUserData = useCallback(async () => {
@@ -42,11 +46,20 @@ export const AppContextProvider = ({ children }) => {
           })
         );
 
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+          axios.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+        }
+
+        return data.user;
       } else {
         setIsLoggedIn(false);
         setUserData(null);
         setUser(null);
         localStorage.removeItem("currentUser");
+        localStorage.removeItem('authToken');
+        delete axios.defaults.headers.common.Authorization;
+        return null;
       }
 
     } catch (err) {
@@ -54,6 +67,9 @@ export const AppContextProvider = ({ children }) => {
       setUserData(null);
       setUser(null);
       localStorage.removeItem("currentUser");
+      localStorage.removeItem('authToken');
+      delete axios.defaults.headers.common.Authorization;
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +86,8 @@ export const AppContextProvider = ({ children }) => {
         setUserData(null);
         setUser(null);
         localStorage.removeItem("currentUser");
+        localStorage.removeItem('authToken');
+        delete axios.defaults.headers.common.Authorization;
 
         toast.success(data.message || "ออกจากระบบสำเร็จ");
       } else {

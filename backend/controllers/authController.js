@@ -42,6 +42,7 @@ export const register = async (req, res) => {
         return res.json({
             success: true,
             message: "ลงทะเบียนสำเร็จ",
+            token,
             user: { name: user.name, email: user.email }
         })
 
@@ -89,6 +90,7 @@ export const login = async (req, res) => {
         return res.json({
             success: true,
             message: "เข้าสู่ระบบสำเร็จ",
+            token,
             user: {
                 id: user._id,
                 name: user.name,

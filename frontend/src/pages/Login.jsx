@@ -113,8 +113,14 @@ const Login = () => {
         return;
       }
 
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        axios.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+      }
+
       toast.success('เข้าสู่ระบบสำเร็จ  ');
       setIsLoggedIn(true);
+
 
       /*   ดึงข้อมูล user */
       let me = null;
