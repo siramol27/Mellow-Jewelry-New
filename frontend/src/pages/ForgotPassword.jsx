@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 
 const ForgotPassword = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
 
   const navigate = useNavigate()
 
@@ -38,7 +39,7 @@ const ForgotPassword = () => {
       // เรียก API ขอรีเซ็ต (backend จะส่งลิงก์หรือ token กลับมา)
       // หมายเหตุ: ระหว่าง dev ระบุ URL ตรง ๆ; ถ้าใช้ axios instance ให้แก้เป็น api.post('/auth/forgot-password', ...)
       const res = await axios.post(
-        'http://localhost:4000/api/auth/forgot-password',
+        `${backendUrl}/api/auth/forgot-password`,
         { email },
         { withCredentials: true } // แนบคุกกี้ไปด้วย (ถ้าระบบ auth อาศัย cookie)
       )

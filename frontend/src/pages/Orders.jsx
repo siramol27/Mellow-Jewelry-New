@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 
-// ถ้ามี AppContext เก็บ backendUrl อยู่แล้ว แนะนำดึงจาก Context
-const BACKEND_URL = "http://localhost:4000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);

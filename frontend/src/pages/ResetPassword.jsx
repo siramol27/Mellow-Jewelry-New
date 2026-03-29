@@ -4,6 +4,7 @@ import axios from "axios";
 
 const ResetPassword = () => {
   const { token } = useParams();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   const navigate = useNavigate();
 
   // --- ฟอร์มหลัก ---
@@ -45,7 +46,7 @@ const ResetPassword = () => {
 
       // เรียกรีเซ็ต
       const res = await axios.post(
-        "http://localhost:4000/api/auth/reset-password",
+        `${backendUrl}/api/auth/reset-password`,
         { token, password },
         { withCredentials: true }
       );
@@ -58,7 +59,7 @@ const ResetPassword = () => {
 
       // ออกจากระบบ cookie เก่าก่อน (กัน session เก่า)
       await axios.post(
-        "http://localhost:4000/api/auth/logout",
+        `${backendUrl}/api/auth/logout`,
         {},
         { withCredentials: true }
       );

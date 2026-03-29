@@ -15,9 +15,7 @@ const Member = () => {
 
   const fetchUserFromServer = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/auth/me`, {
-        withCredentials: true,
-      });
+      const { data } = await axios.get(`${backendUrl}/api/auth/member`, {
 
       if (data.success) {
         localStorage.setItem("currentUser", JSON.stringify(data.user));
