@@ -13,14 +13,18 @@ const Member = () => {
     JSON.parse(localStorage.getItem("currentUser") || "null") || {}
   );
 
-  const fetchUserFromServer = useCallback(async () => {
+    const fetchUserFromServer = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/auth/member`, {
+      const { data } = await axios.get(
+        `${backendUrl}/api/auth/member`,
+        { withCredentials: true }
+      );
 
       if (data.success) {
         localStorage.setItem("currentUser", JSON.stringify(data.user));
         setUser(data.user);
       }
+
     } catch (err) {
       console.error("❌ โหลดข้อมูลผู้ใช้จาก server ผิดพลาด:", err);
     }
