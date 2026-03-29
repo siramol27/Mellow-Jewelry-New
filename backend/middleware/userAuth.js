@@ -22,11 +22,11 @@ const userAuth = (req, res, next) => {
     }
 
     //   หา secret จาก env แบบปลอดภัย
-    const secret = process.env.JWT_SECRET || process.env.jwt_secret;
+    const secret = process.env. JWT_SECRET || process.env. JWT_SECRET;
     if (!secret) {
       return res.status(500).json({
         success: false,
-        message: "เซิร์ฟเวอร์ตั้งค่า JWT_SECRET ไม่ครบ",
+        message: "เซิร์ฟเวอร์ตั้งค่า  JWT_SECRET ไม่ครบ",
       });
     }
 

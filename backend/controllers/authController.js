@@ -26,7 +26,7 @@ export const register = async (req, res) => {
         const user = new userModel({ name, email, password: hashedPassword })
         await user.save()
 
-        const token = jwt.sign({id: user._id}, process.env.jwt_secret, {expiresIn: '7d'})
+        const token = jwt.sign({id: user._id}, process.env. JWT_SECRET, {expiresIn: '7d'})
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -69,7 +69,7 @@ export const login = async (req , res) => {
 
         const token = jwt.sign(
             { id:user._id },
-            process.env.jwt_secret,
+            process.env. JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -143,7 +143,7 @@ export const forgotPassword = async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id },
-            process.env.jwt_secret,
+            process.env. JWT_SECRET,
             { expiresIn: '15m' }
         )
 
@@ -166,7 +166,7 @@ export const resetPassword = async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.jwt_secret)
+        const decoded = jwt.verify(token, process.env. JWT_SECRET)
 
         const user = await userModel.findById(decoded.id)
 
