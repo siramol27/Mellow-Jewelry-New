@@ -1,25 +1,28 @@
 // backend/routes/orderRoutes.js
-import { Router } from 'express';
-import { createOrder, getMyOrders, getAdminOrders, updateStatus } from '../controllers/orderController.js';
-import { userAuth } from '../middleware/userAuth.js';
+import express from "express";
+import {
+  listAllOrders,     //   Admin/Owner
+  listMyOrders,      //   ลูกค้า
+  createOrder,       //   สร้างออเดอร์
+  updateOrderStatus, //   Admin เปลี่ยนสถานะ
+  deleteOrder        //   ลบออเดอร์
+} from "../controllers/orderController.js";
 
-const router = Router();
+const router = express.Router();
 
-// guard บทบาทแบบง่ายจาก req.user.role (userAuth ต้องเซ็ต req.user ให้)
-const allowRoles = (...roles) => (req, res, next) => {
-  const role = String(req.user?.role || '').toLowerCase();
-  if (!role || !roles.map(r => r.toLowerCase()).includes(role)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-  next();
-};
+//   GET ออเดอร์ทั้งหมด (Admin)
+router.get("/", listAllOrders);
 
-// ต้องล็อกอินทั้งหมด
-router.post('/', userAuth, createOrder);
-router.get('/my', userAuth, getMyOrders);
+//   GET ออเดอร์ของลูกค้า (ต้องมีระบบ auth)
+router.get("/me", listMyOrders);
 
-// เฉพาะ admin/owner
-router.get('/admin', userAuth, allowRoles('admin', 'owner'), getAdminOrders);
-router.put('/:id/status', userAuth, allowRoles('admin', 'owner'), updateStatus);
+//   ลูกค้าสร้างออเดอร์
+router.post("/", createOrder);
+
+//   Admin เปลี่ยนสถานะออเดอร์
+router.patch("/:id/status", updateOrderStatus);
+
+//   ลบออเดอร์
+router.delete("/:id", deleteOrder);
 
 export default router;

@@ -51,37 +51,51 @@ export const login = async (req , res) => {
     const {email, password} = req.body 
 
     if (!email || !password) {
-        return res.json({success: false, message: "กรุณากรอกข้อมูลให้ครบถ้วน"})
+        return res.json({success: false, message: "กรุณากรอกข้อมูลให้ครบถ้วน"});
     }
 
     try {
-        const user = await userModel.findOne({email})
+        const user = await userModel.findOne({email});
         
         if (!user) {
-            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"})
+            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"});
         }
 
-        const isMatch = await bcrypt.compare(password, user.password)
- 
+        const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch){
-            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"})
+            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"});
         }
- 
-        const token = jwt.sign({id:user._id}, process.env.jwt_secret, {expiresIn: '7d'})
- 
+
+        const token = jwt.sign(
+            { id:user._id },
+            process.env.jwt_secret,
+            { expiresIn: '7d' }
+        );
+
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.node_env === 'production',
             sameSite: process.env.node_env === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
+        });
 
-        return res.json({success: true, message: "เข้าสู่ระบบสำเร็จ"})
+        //   ส่งข้อมูล user + role ออกไป
+        return res.json({
+            success: true,
+            message: "เข้าสู่ระบบสำเร็จ",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role || "member"
+            }
+        });
 
     } catch (error) {
-        return res.json({success: false, message: error.message})
-    }  
-}
+        return res.json({success: false, message: error.message});
+    }
+};
 
 // ================= LOGOUT =================
 export const logout = async (req,res) => {
@@ -174,3 +188,44 @@ export const resetPassword = async (req, res) => {
         return res.json({ success: false, message: "token ไม่ถูกต้อง หรือหมดอายุ" })
     }
 }
+// ================= UPDATE PROFILE =================
+export const updateUserProfile = async (req, res) => {
+    console.log("📌 updateUserProfile ถูกเรียกแล้ว");
+
+    try {
+        const userId = req.userId || req.params.id;
+
+        const { username, avatar } = req.body;  //   รับค่าที่ถูกส่งมาจริง
+
+        //   ป้องกันแก้ข้อมูลผู้ใช้คนอื่น
+        if (userId !== req.params.id) {
+            return res.json({
+                success: false,
+                message: "ไม่มีสิทธิ์แก้ไขข้อมูลผู้ใช้นี้",
+            });
+        }
+
+        const updated = await userModel.findByIdAndUpdate(
+            userId,
+            {
+                username: username,
+                avatar: avatar
+            },
+            { new: true }
+        ).select("-password");
+
+        if (!updated) {
+            return res.json({ success: false, message: "ไม่พบผู้ใช้" });
+        }
+
+        return res.json({
+            success: true,
+            message: "อัปเดตข้อมูลสำเร็จ",
+            user: updated
+        });
+
+    } catch (error) {
+        console.error("❌ Update Profile Error:", error);
+        return res.json({ success: false, message: error.message });
+    }
+};

@@ -61,7 +61,7 @@ const ForgotPassword = () => {
         setError(true)
       }
 
-    } catch (err) {
+    } catch {
       // กรณี error จาก network/เซิร์ฟเวอร์ — แสดงข้อความกลาง ๆ
       setMessage('เกิดข้อผิดพลาด กรุณาลองใหม่')
       setError(true)

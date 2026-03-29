@@ -1,6 +1,5 @@
-// backend/controllers/orderController.js
-import Order from "../models/Order.js";
 
+import Order from "../models/orderModel.js";
 /**
  * 📌 GET /api/orders  (Admin/Owner)
  * ดึงออเดอร์ทั้งหมด เรียงจากใหม่ -> เก่า
@@ -16,7 +15,7 @@ export async function listAllOrders(req, res) {
 }
 
 /**
- * 📌 GET /api/orders/me   (ลูกค้า)
+ * 📌 GET /api/orders/api/auth/member  (ลูกค้า)
  * ดึงออเดอร์เฉพาะของ user
  */
 export async function listMyOrders(req, res) {
