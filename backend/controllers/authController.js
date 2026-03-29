@@ -26,7 +26,11 @@ export const register = async (req, res) => {
         const user = new userModel({ name, email, password: hashedPassword })
         await user.save()
 
-        const token = jwt.sign({id: user._id}, process.env. JWT_SECRET, {expiresIn: '7d'})
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -38,7 +42,7 @@ export const register = async (req, res) => {
         return res.json({
             success: true,
             message: "ลงทะเบียนสำเร็จ",
-            user: {name: user.name, email: user.email}
+            user: { name: user.name, email: user.email }
         })
 
     } catch (error) {
@@ -46,30 +50,32 @@ export const register = async (req, res) => {
     }
 }
 
+
+
 // ================= LOGIN =================
-export const login = async (req , res) => {
-    const {email, password} = req.body 
+export const login = async (req, res) => {
+    const { email, password } = req.body
 
     if (!email || !password) {
-        return res.json({success: false, message: "กรุณากรอกข้อมูลให้ครบถ้วน"});
+        return res.json({ success: false, message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
     }
 
     try {
-        const user = await userModel.findOne({email});
-        
+        const user = await userModel.findOne({ email });
+
         if (!user) {
-            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"});
+            return res.json({ success: false, message: "ข้อมูลไม่ถูกต้อง" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
-        if (!isMatch){
-            return res.json({success: false, message: "ข้อมูลไม่ถูกต้อง"});
+        if (!isMatch) {
+            return res.json({ success: false, message: "ข้อมูลไม่ถูกต้อง" });
         }
 
         const token = jwt.sign(
-            { id:user._id },
-            process.env. JWT_SECRET,
+            { id: user._id },
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -80,7 +86,6 @@ export const login = async (req , res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        //   ส่งข้อมูล user + role ออกไป
         return res.json({
             success: true,
             message: "เข้าสู่ระบบสำเร็จ",
@@ -93,12 +98,14 @@ export const login = async (req , res) => {
         });
 
     } catch (error) {
-        return res.json({success: false, message: error.message});
+        return res.json({ success: false, message: error.message });
     }
 };
 
+
+
 // ================= LOGOUT =================
-export const logout = async (req,res) => {
+export const logout = async (req, res) => {
     try {
         res.clearCookie('token', {
             httpOnly: true,
@@ -106,25 +113,29 @@ export const logout = async (req,res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
 
-        return res.json({success: true, message: "ออกจากระบบสำเร็จ"})
-    } catch(error) {
-        return res.json({success: false, message: error.message})
+        return res.json({ success: true, message: "ออกจากระบบสำเร็จ" })
+    } catch (error) {
+        return res.json({ success: false, message: error.message })
     }
-}   
+}
+
+
 
 // ================= GET ME =================
 export const getMe = async (req, res) => {
-    try { 
+    try {
         const user = await userModel.findById(req.userId).select('-password')
-        
+
         if (!user) {
-            return res.json({success: false, message: "ไม่พบผู้ใช้"})
+            return res.json({ success: false, message: "ไม่พบผู้ใช้" })
         }
-        return res.json({success: true, user})
+        return res.json({ success: true, user })
     } catch (error) {
-        return res.json({success: false, message: error.message})
+        return res.json({ success: false, message: error.message })
     }
 }
+
+
 
 // ================= FORGOT PASSWORD =================
 export const forgotPassword = async (req, res) => {
@@ -143,7 +154,7 @@ export const forgotPassword = async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id },
-            process.env. JWT_SECRET,
+            process.env.JWT_SECRET,
             { expiresIn: '15m' }
         )
 
@@ -157,6 +168,8 @@ export const forgotPassword = async (req, res) => {
     }
 }
 
+
+
 // ================= RESET PASSWORD =================
 export const resetPassword = async (req, res) => {
     const { token, password } = req.body
@@ -166,7 +179,7 @@ export const resetPassword = async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env. JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
         const user = await userModel.findById(decoded.id)
 
@@ -188,6 +201,9 @@ export const resetPassword = async (req, res) => {
         return res.json({ success: false, message: "token ไม่ถูกต้อง หรือหมดอายุ" })
     }
 }
+
+
+
 // ================= UPDATE PROFILE =================
 export const updateUserProfile = async (req, res) => {
     console.log("📌 updateUserProfile ถูกเรียกแล้ว");
@@ -195,9 +211,8 @@ export const updateUserProfile = async (req, res) => {
     try {
         const userId = req.userId || req.params.id;
 
-        const { username, avatar } = req.body;  //   รับค่าที่ถูกส่งมาจริง
+        const { username, avatar } = req.body;
 
-        //   ป้องกันแก้ข้อมูลผู้ใช้คนอื่น
         if (userId !== req.params.id) {
             return res.json({
                 success: false,

@@ -8,18 +8,19 @@ import dns from "dns/promises";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 
-//   DNS
+// ✅ DNS Fix
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-//   Allow localhost + vercel
+// ✅ Allowed origins (localhost + Vercel)
 const allowedOrigins = [
   /^http:\/\/localhost:\d+$/,
   process.env.CORS_ORIGIN
 ];
 
+// ✅ CORS Options — เวอร์ชันแก้ครบ
 const corsOptions = {
   origin(origin, callback) {
     if (!origin) return callback(null, true);
@@ -35,27 +36,43 @@ const corsOptions = {
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+  exposedHeaders: "set-cookie",     // ✅ สำคัญมาก ทำให้ Cookie ส่งข้ามโดเมนได้
 };
 
+// ✅ ต้องเพิ่ม header นี้ก่อน cors() ด้วย
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
+// ✅ เปิด CORS
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-//   ROOT
+// ✅ ✅ FIX สำคัญสุด: ทำให้ secure cookie ทำงานบน Render
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+  console.log("✅ TRUST PROXY ENABLED");
+}
+
+// ✅ Root
 app.get("/", (req, res) => {
   res.send("API is working...");
 });
 
-//   ROUTES
+// ✅ Routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-//   404
+// ✅ 404
 app.use((req, res) => {
   return res.status(404).json({ success: false, message: "Not Found" });
 });
 
-//   ERROR HANDLER
+// ✅ Error Handler
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err);
   return res
@@ -63,12 +80,14 @@ app.use((err, req, res, next) => {
     .json({ success: false, message: err.message || "Internal Server Error" });
 });
 
-//   START SERVER
+// ✅ Start Server
 (async () => {
   try {
-    await conn(); // 🔥 connect MongoDB
+    await conn();
     app.listen(port, () => {
-      console.log(`  Server running on port ${port}`);
+      console.log(`✅ Server running on port ${port}`);
+      console.log(`✅ NODE_ENV = ${process.env.NODE_ENV}`);
+      console.log(`✅ CORS_ORIGIN = ${process.env.CORS_ORIGIN}`);
     });
   } catch (e) {
     console.error("❌ Failed to start server:", e);
