@@ -5,20 +5,23 @@ import axios from "axios";
 
 export default function EditProfile() {
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; //   backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  //   โหลด user และ map id → _id ถ้าจำเป็น
+  // ✅ โหลด user จาก localStorage แบบเดิมของคุณ
   const loadUser = () => {
     const u = JSON.parse(localStorage.getItem("currentUser") || "null") || {};
-    if (u.id && !u._id) u._id = u.id; //   แก้ปัญหา user._id = undefined
+
+    // ✅ แก้ปัญหา _id undefined
+    if (u.id && !u._id) u._id = u.id;
+
     return u;
   };
 
   const user = loadUser();
+
   const [username, setUsername] = useState(user.username || "");
   const [avatar, setAvatar] = useState(user.avatar || "");
 
-  //   อ่านรูปโปรไฟล์ที่อัปโหลด
   const handleAvatar = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -28,17 +31,16 @@ export default function EditProfile() {
     reader.readAsDataURL(file);
   };
 
-  //   บันทึกข้อมูลลง MongoDB
   const saveProfile = async () => {
     try {
       const { data } = await axios.put(
-        `${backendUrl}/api/user/update/${user._id}`, //   _id ไม่ undefined แน่นอน
+        `${backendUrl}/api/user/update/${user._id}`,
         {
           username,
           avatar,
         },
         {
-          withCredentials: true, //   ส่ง cookie token
+          withCredentials: true,
         }
       );
 
@@ -47,7 +49,7 @@ export default function EditProfile() {
         return;
       }
 
-      //   อัปเดต localStorage ให้เป็นข้อมูลใหม่จาก MongoDB
+      // ✅ อัปเดต localStorage จากผลลัพธ์ backend
       localStorage.setItem("currentUser", JSON.stringify(data.user));
 
       alert("บันทึกข้อมูลสำเร็จ!");
@@ -69,6 +71,7 @@ export default function EditProfile() {
         justifyContent: "center",
       }}
     >
+      {/* ✅ ✅ UI เดิม ทุกอย่างเหมือนเดิม 100% */}
       <div style={{ width: "420px" }}>
         <h1 style={{ fontSize: 26, marginBottom: 20 }}>แก้ไขโปรไฟล์</h1>
 
@@ -80,7 +83,6 @@ export default function EditProfile() {
             padding: "20px",
           }}
         >
-          {/* Avatar */}
           <div style={{ textAlign: "center", marginBottom: 15 }}>
             {avatar ? (
               <img
@@ -125,7 +127,6 @@ export default function EditProfile() {
             </label>
           </div>
 
-          {/* ชื่อผู้ใช้ */}
           <label>ชื่อผู้ใช้</label>
           <input
             value={username}
@@ -141,7 +142,6 @@ export default function EditProfile() {
             }}
           />
 
-          {/* อีเมล */}
           <label>อีเมล (แก้ไม่ได้)</label>
           <input
             value={user.email || ""}
@@ -157,7 +157,6 @@ export default function EditProfile() {
             }}
           />
 
-          {/* ปุ่มบันทึก */}
           <button
             onClick={saveProfile}
             style={{
@@ -173,7 +172,6 @@ export default function EditProfile() {
             บันทึกข้อมูล
           </button>
 
-          {/* ปุ่มยกเลิก */}
           <button
             onClick={() => navigate("/member")}
             style={{
